@@ -1,34 +1,34 @@
-// // Define the nodes for the graph
-// var nodes = new vis.DataSet([
-//     { id: 1, label: "Node 1" },
-//     { id: 2, label: "Node 2" },
-//     { id: 3, label: "Node 3" },
-//   ]);
+// Define the nodes for the graph
+var nodes = new vis.DataSet([
+    { id: 1, label: "Node 1" },
+    { id: 2, label: "Node 2" },
+    { id: 3, label: "Node 3" },
+  ]);
   
-//   // Define the edges for the graph
-//   var edges = new vis.DataSet([
-//     { from: 1, to: 2 },
-//     { from: 2, to: 3 },
-//     { from: 3, to: 1 },
-//   ]);
+  // Define the edges for the graph
+  var edges = new vis.DataSet([
+    { from: 1, to: 2 },
+    { from: 2, to: 3 },
+    { from: 3, to: 1 },
+  ]);
   
-//   // Create an object containing options for the graph
-//   var options = {
-//     nodes: {
-//       shape: "circle",
-//     },
-//     edges: {
-//       color: "#000000",
-//     },
-//   };
+  // Create an object containing options for the graph
+  var options = {
+    nodes: {
+      shape: "circle",
+    },
+    edges: {
+      color: "#000000",
+    },
+  };
   
-//   // Create a network object and render the graph
-//   var container = document.getElementById("mynetwork");
-//   var data = {
-//     nodes: nodes,
-//     edges: edges,
-//   };
-//   var network = new vis.Network(container, data, options);
+  // Create a network object and render the graph
+  var container = document.getElementById("mynetwork");
+  var data = {
+    nodes: nodes,
+    edges: edges,
+  };
+  var network = new vis.Network(container, data, options);
 
 var nodes = null;
 var edges = null;

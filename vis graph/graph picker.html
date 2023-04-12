@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Graph Picker</title>
+
+    <style type="text/css">
+        body,
+        select {
+            font: 10pt sans;
+        }
+
+        #mynetwork {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            border: 1px solid lightgray;
+        }
+
+        table.legend_table {
+            font-size: 11px;
+            border-width: 1px;
+            border-color: #d3d3d3;
+            border-style: solid;
+        }
+
+        table.legend_table,
+        td {
+            border-width: 1px;
+            border-color: #d3d3d3;
+            border-style: solid;
+            padding: 2px;
+        }
+
+        div.table_content {
+            width: 80px;
+            text-align: center;
+        }
+
+        div.table_description {
+            width: 100px;
+        }
+
+        #operation {
+            font-size: 28px;
+        }
+
+        #node-popUp {
+            display: none;
+            position: absolute;
+            top: 350px;
+            left: 170px;
+            z-index: 299;
+            width: 250px;
+            height: 120px;
+            background-color: #f9f9f9;
+            border-style: solid;
+            border-width: 3px;
+            border-color: #5394ed;
+            padding: 10px;
+            text-align: center;
+        }
+
+        #edge-popUp {
+            display: none;
+            position: absolute;
+            top: 350px;
+            left: 170px;
+            z-index: 299;
+            width: 250px;
+            height: 90px;
+            background-color: #f9f9f9;
+            border-style: solid;
+            border-width: 3px;
+            border-color: #5394ed;
+            padding: 10px;
+            text-align: center;
+        }
+
+        #contents {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        #right,
+        #left {
+            position: absolute;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+            display: inline-block;
+        }
+
+        #right {
+            width: 50%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        #left {
+            width: 50%;
+            height: 100%;
+            top: 0;
+            right: 0;
+        }
+    </style>
+
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/alea@1.0.0/alea.js"></script>
+
+    <script type="text/javascript">
+        seededRandom = Alea("SEED");
+
+        var nodes, edges;
+        var network = null;
+
+        function getScaleFreeNetwork(nodeCount) {
+            const connectionCount = [];
+            var nodesArray = [];
+            var edgesArray = [];
+
+            // randomly create some nodes and edges
+            for (let i = 0; i < nodeCount; i++) {
+                nodesArray.push({
+                    id: i,
+                    label: String(i),
+                });
+
+                connectionCount[i] = 0;
+
+                // create edges in a scale-free-network way
+                if (i == 1) {
+                    const from = i;
+                    const to = 0;
+                    edgesArray.push({
+                        from: from,
+                        to: to,
+                        arrows: 'to',
+                    });
+                    connectionCount[from]++;
+                    connectionCount[to]++;
+                } else if (i > 1) {
+                    const conn = edgesArray.length * 2;
+                    const rand = Math.floor(seededRandom() * conn);
+                    let cum = 0;
+                    let j = 0;
+                    while (j < connectionCount.length && cum < rand) {
+                        cum += connectionCount[j];
+                        j++;
+                    }
+
+                    const from = i;
+                    const to = j;
+                    edgesArray.push({
+                        from: from,
+                        to: to,
+                        arrows: 'to',
+                    });
+                    connectionCount[from]++;
+                    connectionCount[to]++;
+                }
+            }
+
+            nodes = new vis.DataSet(nodesArray);
+            edges = new vis.DataSet(edgesArray);
+
+            return { nodes: nodes, edges: edges };
+        }
+
+        function destroy() {
+            if (network !== null) {
+                network.destroy();
+                network = null;
+            }
+        }
+
+        function draw(nodesCount) {
+            destroy();
+
+            data = getScaleFreeNetwork(nodesCount);
+
+            // create a network
+            var container = document.getElementById("mynetwork");
+            var options = {
+                manipulation: {
+                    addNode: function (data, callback) {
+                        // filling in the popup DOM elements
+                        document.getElementById("node-operation").innerText = "Add Node";
+                        editNode(data, clearNodePopUp, callback);
+                    },
+                    editNode: function (data, callback) {
+                        // filling in the popup DOM elements
+                        document.getElementById("node-operation").innerText = "Edit Node";
+                        editNode(data, cancelNodeEdit, callback);
+                    },
+                    addEdge: function (data, callback) {
+                        data.arrows = 'to';
+                        if (data.from == data.to) {
+                            var r = confirm("Do you want to connect the node to itself?");
+                            if (r != true) {
+                                callback(null);
+                                return;
+                            }
+                        }
+                        document.getElementById("edge-operation").innerText = "Add Edge";
+                        editEdgeWithoutDrag(data, callback);
+                    },
+                    editEdge: {
+                        editWithoutDrag: function (data, callback) {
+                            document.getElementById("edge-operation").innerText = "Edit Edge";
+                            editEdgeWithoutDrag(data, callback);
+                        },
+                    },
+                    deleteNode: function (data, callback) {
+                        callback(data);
+                    },
+                    deleteEdge: function (data, callback) {
+                        var a = callback(data);
+                    },
+                },
+            };
+            network = new vis.Network(container, data, options);
+        }
+
+        //node utilities
+        function editNode(data, cancelAction, callback) {
+            document.getElementById("node-label").value = data.label;
+            document.getElementById("node-saveButton").onclick = saveNodeData.bind(
+                this,
+                data,
+                callback
+            );
+            document.getElementById("node-cancelButton").onclick =
+                cancelAction.bind(this, callback);
+            document.getElementById("node-popUp").style.display = "block";
+        }
+
+        function clearNodePopUp() {
+            document.getElementById("node-saveButton").onclick = null;
+            document.getElementById("node-cancelButton").onclick = null;
+            document.getElementById("node-popUp").style.display = "none";
+        }
+
+        function cancelNodeEdit(callback) {
+            clearNodePopUp();
+            callback(null);
+        }
+
+        function saveNodeData(data, callback) {
+            data.label = document.getElementById("node-label").value;
+            clearNodePopUp();
+            callback(data);
+        }
+
+        //edge utilities
+        function editEdgeWithoutDrag(data, callback) {
+            //document.getElementById("edge-label").value = data.label;
+            document.getElementById("edge-saveButton").onclick = saveEdgeData.bind(
+                this,
+                data,
+                callback
+            );
+            document.getElementById("edge-cancelButton").onclick =
+                cancelEdgeEdit.bind(this, callback);
+            document.getElementById("edge-popUp").style.display = "block";
+        }
+
+        function clearEdgePopUp() {
+            document.getElementById("edge-saveButton").onclick = null;
+            document.getElementById("edge-cancelButton").onclick = null;
+            document.getElementById("edge-popUp").style.display = "none";
+        }
+
+        function cancelEdgeEdit(callback) {
+            clearEdgePopUp();
+            callback(null);
+        }
+
+        function saveEdgeData(data, callback) {
+            if (typeof data.to === "object") data.to = data.to.id;
+            if (typeof data.from === "object") data.from = data.from.id;
+            data.label = document.getElementById("edge-label").value;
+            clearEdgePopUp();
+            callback(data);
+        }
+
+        //init
+        function init() {
+            draw(25);
+        }
+    </script>
+</head>
+
+<body onload="init();">
+    <h2>Build your graph</h2>
+
+    <!--Random Generation-->
+    <p style="width: 700px; font-size: 14px; text-align: justify">
+        Generate random graph:
+    </p>
+    <p>
+        Nodes count:
+        <input type="number" value="25" id="size-picker" />
+        <input type="button" value="Generate!" id="generate-graph" />
+    </p>
+
+    <!--Node Popup-->
+    <div id="node-popUp">
+        <span id="node-operation">node</span> <br />
+        <table style="margin: auto">
+            <tr>
+                <td>id</td>
+                <td><input id="node-id" value="new value" /></td>
+            </tr>
+            <tr>
+                <td>label</td>
+                <td><input id="node-label" value="new value" /></td>
+            </tr>
+        </table>
+        <input type="button" value="save" id="node-saveButton" />
+        <input type="button" value="cancel" id="node-cancelButton" />
+    </div>
+
+    <!--Edge Popup-->
+    <div id="edge-popUp">
+        <span id="edge-operation">edge</span> <br />
+        <table style="margin: auto">
+            <tr>
+                <td>label</td>
+                <td><input type="text" id="edge-label" value="" /></td>
+            </tr>
+        </table>
+        <input type="button" value="save" id="edge-saveButton" />
+        <input type="button" value="cancel" id="edge-cancelButton" />
+    </div>
+
+    <br />
+
+    <div id="contents" style="height: 735px;">
+        <!--Network-->
+        <div id="right">
+            <div id="mynetwork"></div>
+        </div>
+        <!--Graph Export-->
+        <div id="left">
+            <div>
+                <textarea id="graph-string" rows="35" cols="100"></textarea>
+                <br />
+                <button id="generateGraphJSON">Generate Graph Json</button>
+                <button id="copyButton">Copy Text</button>
+                <button id="downloadButton">Download JSON</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    //random generation
+    var btnGENERATE = document.getElementById("generate-graph");
+    btnGENERATE.onclick = function () {
+        var nmbSIZE = document.getElementById("size-picker").value;
+        draw(Number(nmbSIZE));
+    };
+
+    //copy graph string
+    const graphTextBox = document.getElementById("graph-string");
+
+    const copyButton = document.getElementById("copyButton");
+    copyButton.addEventListener("click", () => {
+        graphTextBox.select();
+        document.execCommand("copy");
+    });
+
+    //download graph
+    const downloadButton = document.getElementById("downloadButton");
+    downloadButton.addEventListener("click", () => {
+        const graphJSON = GetGraphJSON();
+        const dataStr =
+            "data:text/json;charset=utf-8," + encodeURIComponent(myJSON);
+        const downloadAnchorNode = document.createElement("a");
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "my_data.json");
+        document.body.appendChild(downloadAnchorNode); // required for firefox
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    });
+
+    function GetGraphJSON() {
+        const graph = {
+            nodes: [],
+            edges: [],
+        }
+
+        var nodesIds = nodes.getIds();
+        for (let i = 0; i < nodesIds.length; i++) {
+            var currNode = nodes.get(nodesIds[i]);
+            graph.nodes.push({ id: currNode.id, label: currNode.label })
+        }
+
+        var edgesIds = edges.getIds();
+        for (let i = 0; i < edgesIds.length; i++) {
+            var currEdge = edges.get(edgesIds[i]);
+            graph.edges.push({ id: currEdge.id, label: currEdge.label, from: currEdge.from, to: currEdge.to })
+        }
+
+        return JSON.stringify(graph, undefined, 4);
+    }
+
+    const generateGraphStringButton = document.getElementById("generateGraphJSON");
+    generateGraphStringButton.addEventListener("click", () => {
+        const graphJSON = GetGraphJSON();
+        graphTextBox.value = graphJSON;
+    })
+</script>
+
+</html>
