@@ -2,71 +2,50 @@
 {
     internal class Demoucron : ITopologicalSortingAlgorythm
     {
-
-
-        public int[] Process(int[][] adjacencyMatrix)
+        public int[] Process(int[,] adjacencyMatrix)
         {
-            return Process(TransformMatrixToArray(adjacencyMatrix));
-        }
-
-        public int[] Process(int[] adjacencyMatrixArray)
-        {
-            var vertexCount = (int)Math.Sqrt(adjacencyMatrixArray.Length);
-            var vertexesLevelArray = new int[vertexCount];
-            var trackArray = new int[vertexCount];
+            var nodesCount = adjacencyMatrix.GetLength(0);
+            var nodesLevels = new int[nodesCount];
+            var trackArray = new int[nodesCount];
 
             // initial track array
-            for (int i = 0; i < vertexCount; i++)
+            for (int i = 0; i < nodesCount; i++)
             {
                 var columnSum = 0;
-                for (int j = 0; j < vertexCount; j++)
+                for (int j = 0; j < nodesCount; j++)
                 {
-                    columnSum += adjacencyMatrixArray[i + vertexCount * j];
+                    columnSum += adjacencyMatrix[j, i];
                 }
                 trackArray[i] = columnSum;
             }
 
             //algorythm steps
-            var sortedVertex = 0;
+            var sortedNodes = 0;
             var level = 0;
 
-            while (sortedVertex < vertexCount)
+            while (sortedNodes < nodesCount)
             {
-                var currentZeroSumVertexIndexes = new List<int>();
+                var currentZeroSumNodesIndexes = new List<int>();
                 for (int i = 0; i < trackArray.Length; i++)
                 {
                     if (trackArray[i] == 0)
-                        currentZeroSumVertexIndexes.Add(i);
+                        currentZeroSumNodesIndexes.Add(i);
 
                 }
-                foreach (int index in currentZeroSumVertexIndexes)
+                foreach (int i in currentZeroSumNodesIndexes)
                 {
-                    trackArray[index] = -1;
+                    trackArray[i] = -1;
 
-                    for (int j = index * vertexCount; j < index * vertexCount + vertexCount; j++)
-                        trackArray[j % vertexCount] -= adjacencyMatrixArray[j];
-                    
-                    vertexesLevelArray[index] = level;
-                    sortedVertex++;
+                    for (int j = 0; j < nodesCount; j++)
+                        trackArray[j] -= adjacencyMatrix[i, j];
+
+                    nodesLevels[i] = level;
+                    sortedNodes++;
                 }
                 level++;
             }
 
-            return vertexesLevelArray;
+            return nodesLevels;
         }
-
-        private static int[] TransformMatrixToArray(int[][] matrix)
-        {
-            if (matrix == null || matrix.Length < 1)
-                return Array.Empty<int>();
-
-            var matrixArray = new int[matrix.Length * matrix.Length];
-            for (int i = 0; i < matrix.Length; i++)
-                for (int j = 0; j < matrix[i].Length; j++)
-                    matrixArray[i * matrix.Length + j] = matrix[i][j];
-
-            return matrixArray;
-        }
-
     }
 }

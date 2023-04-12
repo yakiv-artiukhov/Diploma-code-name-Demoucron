@@ -3,62 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace omg.GraphTopologicalSorting
 {
     internal class GraphTopologicalSorting
     {
-        public List<List<int>> GraphAdjacencyMatrixList { get; set; }
-
-        public int[][] GraphAdjacencyMatrix { get; set; }
-
-        public int[] GraphAdjacencyMatrixArray { get; set; }
-
-        public ITopologicalSortingAlgorythm Algorythm { get; set; }
-
-        public GraphTopologicalSorting(int[] graphAdjacencyMatrixArray, ITopologicalSortingAlgorythm algorythm)
+        public static Graph OrderGraphVerticesByLevels(Graph graph, ITopologicalSortingAlgorythm algorythm)
         {
-            GraphAdjacencyMatrixArray = graphAdjacencyMatrixArray;
-            Algorythm = algorythm;
-        }
+            if (graph == null) throw new ArgumentNullException(nameof(graph), "graph can not be null");
+            if (algorythm == null) throw new ArgumentNullException(nameof(algorythm), $"algorythm cannot be null");
 
-        public GraphTopologicalSorting(List<List<int>> graphAdjacencyMatrixList, ITopologicalSortingAlgorythm algorythm)
-        {
-            GraphAdjacencyMatrixList = graphAdjacencyMatrixList;
-            Algorythm = algorythm;
-        }
-
-        public GraphTopologicalSorting(int[][] graphAdjacencyMatrix, ITopologicalSortingAlgorythm algorythm)
-        {
-            GraphAdjacencyMatrix = graphAdjacencyMatrix;
-            Algorythm = algorythm;
-        }
-
-
-
-        public Dictionary<int, List<int>> OrderGraphVerticesByLevels()
-        {
-            var graphVerticesByLevels = new Dictionary<int, List<int>>();
-
-            int[] verticesLevelsArray;
-            if (GraphAdjacencyMatrix != null)
+            var nodesLevels = algorythm.Process(graph.AdjacencyMatrix);
+            for (int i = 0; i < nodesLevels.Length; i++)
             {
-                verticesLevelsArray = Algorythm.Process(GraphAdjacencyMatrix);
-            }
-            else
-            {
-                verticesLevelsArray = Algorythm.Process(GraphAdjacencyMatrixArray);
-            }
-            
-            for (int i = 0; i < verticesLevelsArray.Length; i++)
-            {
-                if (graphVerticesByLevels.ContainsKey(verticesLevelsArray[i]))
-                    graphVerticesByLevels[verticesLevelsArray[i]].Add(i);
-                else
-                    graphVerticesByLevels[verticesLevelsArray[i]] = new List<int>() { i };
+                var node = graph.Nodes.Where(x => x.Label == i).FirstOrDefault();
+                if (node != null)
+                    node.Level = nodesLevels[i];
             }
 
-            return graphVerticesByLevels;
+            return graph;
         }
     }
 }

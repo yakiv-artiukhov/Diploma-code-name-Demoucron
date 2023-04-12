@@ -8,8 +8,6 @@ namespace omg.GraphTopologicalSorting
 {
     internal interface ITopologicalSortingAlgorythm
     {
-        public int[] Process(int[] adjacencyMatrixArray);
-
-        public int[] Process(int[][] adjacencyMatrix);
+        public int[] Process(int[,] adjacencyMatrix);
     }
 }

@@ -8,12 +8,12 @@ namespace omg
     {
         static void Main(string[] args)
         {
-            var matrix = new int[4][]
+            var matrix = new int[4,4]
             {
-                new int[4] { 0, 0, 1, 1},
-                new int[4] { 0, 0, 1, 0 },
-                new int[4] { 0, 0, 0, 0 },
-                new int[4] { 0, 0, 1, 0 }
+                { 0, 0, 1, 1},
+                { 0, 0, 1, 0 },
+                { 0, 0, 0, 0 },
+                { 0, 0, 1, 0 }
             };
 
             var matrix1 = new int[23 * 23]
@@ -25,17 +25,29 @@ namespace omg
 
 
             var demoucron = new Demoucron();
-            var graphTopologicalSorting = new GraphTopologicalSorting.GraphTopologicalSorting(matrix2, demoucron);
-            var graphVerticesByLevels = graphTopologicalSorting.OrderGraphVerticesByLevels();
+            var graph = new Graph(matrix);
 
-            //var vertexLevelsArray = Demoucron.Process(matrix);
-            //var vertexLevelsArray = Demoucron.Process(matrix1);
-            var vertexLevelsArray = demoucron.Process(matrix2);
+            var orderedGraph = GraphTopologicalSorting.GraphTopologicalSorting.OrderGraphVerticesByLevels(graph, demoucron);
 
-            DisplayArray(vertexLevelsArray);
             Console.WriteLine();
-            DisplayGraphByLevels(graphVerticesByLevels);
         }
+
+
+
+    public Graph
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         public static void DisplayArray(int[] array)
         {
@@ -52,14 +64,6 @@ namespace omg
             }
 
             return array;
-        }
-
-        public static void DisplayGraphByLevels(Dictionary<int, List<int>> graphVerticesByLevels)
-        {
-            foreach (var level in graphVerticesByLevels)
-            {
-                Console.WriteLine($"Level {level.Key}: {String.Join(", ", level.Value)}");
-            }
         }
     }
 }
