@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace omg.GraphTopologicalSorting.Models
+namespace omg.TopologicalSorting.Models
 {
     [Serializable]
     public class EdgeModel
@@ -23,7 +23,7 @@ namespace omg.GraphTopologicalSorting.Models
         [JsonProperty("To")]
         public string To { get; set; }
 
-        [JsonProperty("Arrow")]
+        [JsonProperty("Arrows")]
         public string Arrows { get; set; }
     }
 }

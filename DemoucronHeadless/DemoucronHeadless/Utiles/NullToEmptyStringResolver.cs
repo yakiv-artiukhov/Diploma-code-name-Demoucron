@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace omg.GraphTopologicalSorting.Utiles
+namespace DemoucronHeadless.Utiles
 {
     public class NullToEmptyStringResolver : DefaultContractResolver
     {

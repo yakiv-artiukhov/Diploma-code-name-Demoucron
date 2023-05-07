@@ -1,4 +1,4 @@
-﻿using omg.GraphTopologicalSorting.Models;
+﻿using omg.TopologicalSorting.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace omg.GraphTopologicalSorting.Utiles
+namespace omg.TopologicalSorting.Utiles
 {
     internal class GraphUtiles
     {
@@ -43,29 +43,30 @@ namespace omg.GraphTopologicalSorting.Utiles
 
         public static Graph VisGraphModelToGraph(VisGraphModel visGraph)
         {
-            var graph = new Graph(new List<Node>(), new List<Edge>());
+            if (visGraph == null) return null;
 
-            if (visGraph == null) return graph;
+            var nodes = new List<Node>();
+            var edges = new List<Edge>();
 
             foreach (var node in visGraph.Nodes)
-                graph.Nodes.Add(new Node()
+                nodes.Add(new Node()
                 {
                     Id = node.Id,
-                    Label = Int32.Parse(node.Label),
-                    Level = Int32.Parse(node.Level),
+                    Label = Int32.Parse(node.Label ?? "-1"),
+                    Level = Int32.Parse(node.Level ?? "-1"),
                 });
 
             foreach (var egde in visGraph.Edges)
-                graph.Edges.Add(new Edge()
+                edges.Add(new Edge()
                 {
                     Id = egde.Id,
-                    Label = Int32.Parse(egde.Label),
-                    From = Int32.Parse(egde.From),
-                    To = Int32.Parse(egde.To),
-                    Arrows = egde.Arrows,
+                    Label = Int32.Parse(egde.Label ?? "-1"),
+                    From = Int32.Parse(egde.From ?? "-1"),
+                    To = Int32.Parse(egde.To ?? "-1"),
+                    Arrows = "to",
                 });
 
-            return graph;
+            return new Graph(nodes, edges);
         }
     }
 }

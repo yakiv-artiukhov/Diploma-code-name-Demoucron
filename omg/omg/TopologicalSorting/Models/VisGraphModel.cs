@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace omg.GraphTopologicalSorting.Models
+namespace omg.TopologicalSorting.Models
 {
     [Serializable]
     public class VisGraphModel

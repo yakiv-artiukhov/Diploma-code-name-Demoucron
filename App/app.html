@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Collapsible Sections</title>
+
+    <link rel="stylesheet" href="styles/graph-picker.css">
+
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/alea@1.0.0/alea.js"></script>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body onload="init();">
+    <div class="section">
+        <div class="section-heading" onclick="toggleSection(0)">
+            Describe document relationships
+        </div>
+        <div class="section-content" id="section-0-content">
+            <h2>Build document relationship graph</h2>
+
+            <!--Random Generation-->
+            <p style="width: 700px; font-size: 14px; text-align: justify">
+                Generate random graph:
+            </p>
+            <p>
+                Nodes count:
+                <input type="number" value="25" id="size-picker" />
+                <input type="button" value="Generate!" id="generate-graph" />
+            </p>
+
+            <!--Node Popup-->
+            <div id="node-popUp">
+                <span id="node-operation">node</span> <br />
+                <table style="margin: auto">
+                    <!--<tr>
+                        <td>id</td>
+                        <td><input id="node-id" value="new value" /></td>
+                    </tr>
+                    <tr>-->
+                    <td>label</td>
+                    <td><input id="node-label" value="new value" /></td>
+                    </tr>
+                </table>
+                <input type="button" value="save" id="node-saveButton" />
+                <input type="button" value="cancel" id="node-cancelButton" />
+            </div>
+
+            <!--Edge Popup-->
+            <div id="edge-popUp">
+                <span id="edge-operation">edge</span> <br />
+                <table style="margin: auto">
+                    <tr>
+                        <td>label</td>
+                        <td><input type="text" id="edge-label" value="" /></td>
+                    </tr>
+                </table>
+                <input type="button" value="save" id="edge-saveButton" />
+                <input type="button" value="cancel" id="edge-cancelButton" />
+            </div>
+
+            <br />
+
+            <div class="contents">
+                <!--Network-->
+                <div class="right">
+                    <div id="graphPickerNetwork"></div>
+                </div>
+                <!--Graph Export-->
+                <div class="left">
+                    <div class="tab">
+                        <button class="tablinks active"
+                            onclick="PickedGraphStringTab(event, 'PickedGraphJson')">JSON</button>
+                        <button class="tablinks" onclick="PickedGraphStringTab(event, 'PickedGraphDot')">DOT</button>
+                    </div>
+
+                    <div id="PickedGraphJson" class="tabcontent" style="display: block;">
+                        <div class="tab-conteiner">
+                            <h3>Graph JSON representation</h3>
+                            <textarea id="picked-graph-json" class="graph-string"></textarea>
+                            <br />
+                            <button id="generateGraphFromJson">Generate Graph From Json</button>
+                            <button id="generateJsonFromGraph" onclick="SetJsonRepresentationFromGraph()">Generate Json
+                                From Graph</button>
+                        </div>
+
+                    </div>
+
+                    <div id="PickedGraphDot" class="tabcontent">
+                        <div class="tab-conteiner">
+                            <h3>Graph DOT representation</h3>
+                            <textarea id="picked-graph-dot" class="graph-string"></textarea>
+                            <br />
+                            <button id="generateGraphFromDot">Generate Graph From DOT</button>
+                            <button id="generateDotFromGraph">Generate DOT From Graph</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <button onclick="SortPickedGraph()">Sort Graph</button>
+        </div>
+    </div>
+    <div class="section">
+        <div class="section-heading" onclick="toggleSection(1)">
+            Topologically sorted document relationship graph
+        </div>
+        <div class="section-content" id="section-1-content">
+            <div class="contents">
+                <div class="center">
+                    <button id="setFlowsNumbers" onclick="SetInformationFlowsPickedGraph()">Set Information
+                        Flows</button>
+                    <div id="sortedGraphNetwork"></div>
+                </div>
+            </div>
+            <button onclick="expandNextSection()">Summarize and expand next section</button>
+        </div>
+    </div>
+    <div class="section">
+        <div class="section-heading" onclick="toggleSection(2)">
+            Local Infrastructure
+        </div>
+        <div class="section-content" id="section-2-content">
+            <h2>Describe you local infrastructure</h2>
+
+            <!--Node Popup-->
+            <div id="localSystemNode-popUp">
+                <span id="localSystemNode-operation">node</span> <br />
+                <table style="margin: auto">
+                    <!--<tr>
+                        <td>id</td>
+                        <td><input id="node-id" value="new value" /></td>
+                    </tr>
+                    <tr>-->
+                    <td>label</td>
+                    <td><input id="localSystemNode-label" value="new value" /></td>
+                    </tr>
+                </table>
+                <input type="button" value="save" id="localSystemNode-saveButton" />
+                <input type="button" value="cancel" id="localSystemNode-cancelButton" />
+            </div>
+
+            <div class="contents">
+                <!--Local stantions-->
+                <div class="right">
+                    <h3>Local stantions</h3>
+                    <div id="localSystemNetwork"></div>
+                </div>
+                <!--Document destribution-->
+                <div class="left">
+                    <h3>Define document destribution between local stantions</h3>
+                </div>
+            </div>
+            <button onclick="expandNextSection()">Summarize and expand next section</button>
+        </div>
+    </div>
+    <div class="section">
+        <div class="section-heading" onclick="toggleSection(3)">
+            Section 3
+        </div>
+        <div class="section-content" id="section-3-content">
+            <p>Placeholder content for section 3</p>
+            <button onclick="expandNextSection()">Summarize and expand next section</button>
+        </div>
+    </div>
+
+    <script>
+        // Get all section elements
+        const sections = document.querySelectorAll('.section');
+
+        // Initially collapse all sections except the first one
+        for (let i = 0; i < sections.length; i++) {
+            const content = sections[i].querySelector('.section-content');
+            if (i === 0) {
+                content.style.display = 'block'
+                document.querySelector(`div[onclick="toggleSection(${i})"]`).style.backgroundColor = '#d2d2d2';
+            }
+            else {
+                content.style.display = 'none';
+            }
+        }
+
+        // Function to toggle a section's visibility
+        function toggleSection(sectionNumber) {
+            const content = document.querySelector(`#section-${sectionNumber}-content`);
+            const sectionHeading = document.querySelector(`div[onclick="toggleSection(${sectionNumber})"]`);
+            //const sectionHeading = document.querySelector(`.section:nth-of-type(${sectionNumber}) .section-heading`);
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                sectionHeading.style.backgroundColor = '#d2d2d2';
+            } else {
+                content.style.display = 'none';
+                sectionHeading.style.backgroundColor = '#f2f2f2';
+            }
+        }
+
+        // Function to expand the next section and summarize the current one
+        function expandNextSection() {
+            let expanded = false;
+            for (let i = 0; i < sections.length; i++) {
+                const content = sections[i].querySelector('.section-content');
+                if (expanded) {
+                    content.style.display = 'block';
+                    sections[i].querySelector('.section-heading').style.backgroundColor = '#d2d2d2';
+                    return;
+                } else if (content.style.display === 'block') {
+                    expanded = true;
+                    content.style.display = 'none';
+                    sections[i].querySelector('.section-heading').style.backgroundColor = '#f2f2f2';
+                }
+            }
+        }
+
+        // init
+        function init() {
+            drawGraphPicker(0);
+            DrawLocalSystem();
+        }
+
+        // picked graph string representations tabs 
+        function PickedGraphStringTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+    </script>
+</body>
+
+<!--GRAPH PICKER SCRIPTS-->
+<script type="text/javascript">
+    seededRandom = Alea("SEED");
+
+    var currentID = 0;
+    var graphPickerNodes, graphPickerEdges;
+    var pickedGraphNetwork = null;
+
+    function getScaleFreeNetwork(nodeCount) {
+        const connectionCount = [];
+        var nodesArray = [];
+        var edgesArray = [];
+
+        // randomly create some nodes and edges
+        for (let i = 0; i < nodeCount; i++) {
+            nodesArray.push({
+                id: i,
+                label: String(i),
+            });
+
+            connectionCount[i] = 0;
+
+            // create edges in a scale-free-network way
+            if (i == 1) {
+                const from = i;
+                const to = 0;
+                edgesArray.push({
+                    from: from,
+                    to: to,
+                    arrows: 'to',
+                });
+                connectionCount[from]++;
+                connectionCount[to]++;
+            } else if (i > 1) {
+                const conn = edgesArray.length * 2;
+                const rand = Math.floor(seededRandom() * conn);
+                let cum = 0;
+                let j = 0;
+                while (j < connectionCount.length && cum < rand) {
+                    cum += connectionCount[j];
+                    j++;
+                }
+
+                const from = i;
+                const to = j;
+                edgesArray.push({
+                    from: from,
+                    to: to,
+                    arrows: 'to',
+                });
+                connectionCount[from]++;
+                connectionCount[to]++;
+            }
+        }
+
+        graphPickerNodes = new vis.DataSet(nodesArray);
+        graphPickerEdges = new vis.DataSet(edgesArray);
+
+        return { nodes: graphPickerNodes, edges: graphPickerEdges };
+    }
+
+    function destroy(network) {
+        if (network !== null) {
+            network.destroy();
+            network = null;
+        }
+    }
+
+    function drawGraphPicker(nodesCount) {
+        destroy(pickedGraphNetwork);
+
+        if (nodesCount === 0) {
+            graphPickerNodes = new vis.DataSet([]);
+            graphPickerEdges = new vis.DataSet([]);
+            graphPickerData = { nodes: graphPickerNodes, edges: graphPickerEdges }
+        }
+        else {
+            graphPickerData = getScaleFreeNetwork(nodesCount);
+        }
+
+        // create a network
+        var graphPickerContainer = document.getElementById("graphPickerNetwork");
+        var graphPickeOptions = {
+            manipulation: {
+                addNode: function (data, callback) {
+                    data.id = currentID;
+                    currentID = currentID + 1;
+                    // filling in the popup DOM elements
+                    document.getElementById("node-operation").innerText = "Add Node";
+                    editNode(data, clearNodePopUp, callback);
+                },
+                editNode: function (data, callback) {
+                    // filling in the popup DOM elements
+                    document.getElementById("node-operation").innerText = "Edit Node";
+                    editNode(data, cancelNodeEdit, callback);
+                },
+                addEdge: function (data, callback) {
+                    data.arrows = 'to';
+                    if (data.from == data.to) {
+                        var r = confirm("Do you want to connect the node to itself?");
+                        if (r != true) {
+                            callback(null);
+                            return;
+                        }
+                    }
+                    document.getElementById("edge-operation").innerText = "Add Edge";
+                    editEdgeWithoutDrag(data, callback);
+                },
+                editEdge: {
+                    editWithoutDrag: function (data, callback) {
+                        document.getElementById("edge-operation").innerText = "Edit Edge";
+                        editEdgeWithoutDrag(data, callback);
+                    },
+                },
+                deleteNode: function (data, callback) {
+                    callback(data);
+                },
+                deleteEdge: function (data, callback) {
+                    var a = callback(data);
+                },
+            },
+        };
+        pickedGraphNetwork = new vis.Network(graphPickerContainer, graphPickerData, graphPickeOptions);
+    }
+
+    //node utilities
+    function editNode(data, cancelAction, callback) {
+        document.getElementById("node-label").value = data.label;
+        document.getElementById("node-saveButton").onclick = saveNodeData.bind(
+            this,
+            data,
+            callback
+        );
+        document.getElementById("node-cancelButton").onclick =
+            cancelAction.bind(this, callback);
+        document.getElementById("node-popUp").style.display = "block";
+    }
+
+    function clearNodePopUp() {
+        document.getElementById("node-saveButton").onclick = null;
+        document.getElementById("node-cancelButton").onclick = null;
+        document.getElementById("node-popUp").style.display = "none";
+    }
+
+    function cancelNodeEdit(callback) {
+        clearNodePopUp();
+        callback(null);
+    }
+
+    function saveNodeData(data, callback) {
+        data.label = document.getElementById("node-label").value;
+        clearNodePopUp();
+        callback(data);
+    }
+
+    //edge utilities
+    function editEdgeWithoutDrag(data, callback) {
+        //document.getElementById("edge-label").value = data.label;
+        document.getElementById("edge-saveButton").onclick = saveEdgeData.bind(
+            this,
+            data,
+            callback
+        );
+        document.getElementById("edge-cancelButton").onclick =
+            cancelEdgeEdit.bind(this, callback);
+        document.getElementById("edge-popUp").style.display = "block";
+    }
+
+    function clearEdgePopUp() {
+        document.getElementById("edge-saveButton").onclick = null;
+        document.getElementById("edge-cancelButton").onclick = null;
+        document.getElementById("edge-popUp").style.display = "none";
+    }
+
+    function cancelEdgeEdit(callback) {
+        clearEdgePopUp();
+        callback(null);
+    }
+
+    function saveEdgeData(data, callback) {
+        if (typeof data.to === "object") data.to = data.to.id;
+        if (typeof data.from === "object") data.from = data.from.id;
+        data.label = document.getElementById("edge-label").value;
+        clearEdgePopUp();
+        callback(data);
+    }
+
+    //random generation
+    var btnGENERATE = document.getElementById("generate-graph");
+    btnGENERATE.onclick = function () {
+        var nmbSIZE = document.getElementById("size-picker").value;
+        drawGraphPicker(Number(nmbSIZE));
+    };
+
+    function SetJsonRepresentationFromGraph() {
+        let graphJsonString = document.getElementById("picked-graph-json");
+        graphJsonString.value = GraphToJSON(graphPickerNodes, graphPickerEdges);
+    }
+
+    // vis nodes and edges to graph
+    function GetGraph(nodes, edges) {
+        const graph = {
+            nodes: [],
+            edges: [],
+        }
+
+        var nodesIds = nodes.getIds();
+        for (let i = 0; i < nodesIds.length; i++) {
+            var currNode = nodes.get(nodesIds[i]);
+            graph.nodes.push({ id: currNode.id, label: currNode.label, level: currNode.level })
+        }
+
+        var edgesIds = edges.getIds();
+        for (let i = 0; i < edgesIds.length; i++) {
+            var currEdge = edges.get(edgesIds[i]);
+            graph.edges.push({ id: currEdge.id, label: currEdge.label, from: currEdge.from, to: currEdge.to })
+        }
+
+        return graph;
+    }
+
+    // graphToJsonRepresentation
+    function GraphToJSON(nodes, edges) {
+        const graph = GetGraph(nodes, edges);
+        return JSON.stringify(graph, undefined, 4);
+    }
+</script>
+
+
+<!-- Sorted Graph Scripts -->
+<script>
+    var sortedGraphNetwork = null;
+    var sortedGraphNodes, sortedGraphEdges;
+
+    function DrawSortedGraph(data) {
+        destroy(sortedGraphNetwork);
+
+        // create a network
+        var container = document.getElementById("sortedGraphNetwork");
+        sortedGraphNodes = new vis.DataSet(data.nodes);
+        sortedGraphEdges = new vis.DataSet(data.edges);
+
+        var options = {
+            edges: {
+                smooth: {
+                    type: "cubicBezier",
+                    forceDirection: "vertical",
+                    roundness: 0.4,
+                },
+            },
+            layout: {
+                hierarchical: {
+                    direction: "LR",
+                },
+            },
+            physics: false,
+        };
+        sortedGraphNetwork = new vis.Network(container, { nodes: sortedGraphNodes, edges: sortedGraphEdges }, options);
+    }
+</script>
+
+<!-- PickLocalSystem -->
+<script>
+    var localID = 0;
+
+    var localSystemNetwork = null;
+    var localSystemNodes;
+
+    function DrawLocalSystem() {
+        destroy(localSystemNetwork);
+
+        localSystemNodes = new vis.DataSet([]);
+        var localSystemEdges = new vis.DataSet([]);
+        var localSystemData = { nodes: localSystemNodes, edges: localSystemEdges };
+
+
+        var localSystemNetworkContainer = document.getElementById("localSystemNetwork");
+        var options = {
+            nodes: {
+                shape: "box",
+                widthConstraint: 200,
+                //color: "#cccccc",
+                margin: 10,
+                font: {
+                    size: 16,
+                },
+            },
+            physics: {
+                enabled: false,
+            },
+            manipulation: {
+                addNode: function (data, callback) {
+                    data.id = localID;
+                    localID = localID + 1;  
+                    data.group = localID;
+                    // filling in the popup DOM elements
+                    document.getElementById("localSystemNode-operation").innerText = "Add Working Station";
+                    localSystemEditNode(data, localSystemClearNodePopUp, callback);
+                },
+                editNode: function (data, callback) {
+                    // filling in the popup DOM elements
+                    document.getElementById("localSystemNode-operation").innerText = "Edit Working Station";
+                    localSystemEditNode(data, localSystemCancelNodeEdit, callback);
+                },
+                addEdge: false,
+                editEdge: false,
+                deleteNode: function (data, callback) {
+                    callback(data);
+                },
+                deleteEdge: false,
+            },
+        };
+
+        localSystemNetwork = new vis.Network(localSystemNetworkContainer, localSystemData, options);
+    }
+
+    // local system node utilities
+    function localSystemEditNode(data, cancelAction, callback) {
+        document.getElementById("localSystemNode-label").value = data.label;
+        document.getElementById("localSystemNode-saveButton").onclick = localSystemSaveNodeData.bind(
+            this,
+            data,
+            callback
+        );
+        document.getElementById("localSystemNode-cancelButton").onclick =
+            cancelAction.bind(this, callback);
+        document.getElementById("localSystemNode-popUp").style.display = "block";
+    }
+
+    function localSystemClearNodePopUp() {
+        document.getElementById("localSystemNode-saveButton").onclick = null;
+        document.getElementById("localSystemNode-cancelButton").onclick = null;
+        document.getElementById("localSystemNode-popUp").style.display = "none";
+    }
+
+    function localSystemCancelNodeEdit(callback) {
+        clearNodePopUp();
+        callback(null);
+    }
+
+    function localSystemSaveNodeData(data, callback) {
+        data.label = document.getElementById("localSystemNode-label").value;
+        localSystemClearNodePopUp();
+        callback(data);
+    }
+</script>
+
+
+<!-- API SCRIPTS -->
+<script>
+    const baseUrl = 'https://localhost:7265/';
+    const getGraph = 'saved-graph';
+    const sortGraph = 'sort-graph';
+    const setFlows = 'set-flows';
+
+    function SortPickedGraph() {
+        let graph = GetGraph(graphPickerNodes, graphPickerEdges);
+        let nodes = graph.nodes;
+        let edges = graph.edges;
+        axios({
+            method: 'post',
+            url: baseUrl + sortGraph,
+            data: { nodes, edges }
+        })
+            .then(function (response) {
+                let graph = response.data;
+                DrawSortedGraph(graph);
+            });
+    }
+
+
+    function SetInformationFlowsPickedGraph() {
+        let graph = GetGraph(sortedGraphNodes, sortedGraphEdges);
+        let nodes = graph.nodes;
+        let edges = graph.edges;
+        axios({
+            method: 'post',
+            url: baseUrl + setFlows,
+            data: { nodes, edges }
+        })
+            .then(function (response) {
+                let graph = response.data;
+                DrawSortedGraph(graph);
+            });
+
+    }
+
+</script>
+
+</html>

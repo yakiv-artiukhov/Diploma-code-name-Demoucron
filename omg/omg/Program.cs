@@ -1,43 +1,53 @@
-﻿using omg.GraphTopologicalSorting;
-using omg.GraphTopologicalSorting.Algorithms;
+﻿using omg.TopologicalSorting;
+using omg.TopologicalSorting.Algorithms;
+using omg.TopologicalSorting.Models;
+using omg.TopologicalSorting.Utiles;
 using System.Net.Security;
 
 namespace omg
 {
     internal class Program
     {
-        static void Main(string[] args)
+        private const string APP_DATA_PATH = "C:\\Users\\38067\\source\\repos\\dimploma-code-name-demoucron\\app\\app-data\\";
+        private const string PICKED_UNORDERED_GRAPH_FILENAME = "picked-unordered-graph.json";
+        private static readonly string PICKED_ORDERED_GRAPH_FILENAME = "picked-ordered-graph.json";
+
+        static void Main()
         {
-            var matrix = new int[4,4]
-            {
-                { 0, 0, 1, 1},
-                { 0, 0, 1, 0 },
-                { 0, 0, 0, 0 },
-                { 0, 0, 1, 0 }
-            };
-
-            var matrix1 = new int[23 * 23]
-            {
-                0,1,1,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,0,0,0,0,0,0,0,0,
-            };
-
-            var matrix2 = StrToArray("0000000001010000000000000000000000100000000000000000000010000000010000000000000000000000000010000000011000000001000000000000000011101010000000000100000000000000000000000000000000000000000000000000000000000100000001000000000000000000000000000000000000001000000000000000000000000000000010000000000010000000000100000000000100000000000000110001000000001000000000000001000010000000000000000000000000000000010000000000100001000000000000000000000000000000000000000001000000000000000000000100000000000000000000000000000000000000000000000");
-
-
             var demoucron = new Demoucron();
-            var graph = new Graph(matrix);
 
-            var orderedGraph = GraphTopologicalSorting.GraphTopologicalSorting.OrderGraphVerticesByLevels(graph, demoucron);
+            var graph = ImportGraphFromJson(PICKED_UNORDERED_GRAPH_FILENAME, APP_DATA_PATH);
+            var orderedGraph =  GraphTopologicalSorting.OrderGraphVerticesByLevels(graph, demoucron);
+            if (orderedGraph != null )
+                ExportGraphToJson(orderedGraph, PICKED_ORDERED_GRAPH_FILENAME, APP_DATA_PATH);
 
-            Console.WriteLine();
+            //Console.WriteLine();
         }
 
 
+        public static Graph ImportGraphFromJson(string name, string path = "")
+        {
+            var fullPath = path + name;
+            using StreamReader streamReader = new(fullPath);
+            var graphJson = streamReader.ReadToEnd();
 
-    public Graph
+            if (graphJson == null)
+                return new Graph(new List<Node>(), new List<Edge>());
 
+            var visGraph = graphJson.DeserializeFromString<VisGraphModel>() ?? new VisGraphModel() { Nodes = new List<NodeModel>(), Edges = new List<EdgeModel>() };
+            return GraphUtiles.VisGraphModelToGraph(visGraph);
+        }
 
+        public static void ExportGraphToJson(Graph graph, string name, string path = "")
+        {
+            var visGraph = GraphUtiles.GraphToVisGraphModel(graph);
+            var visGraphJson = visGraph.SerializeObject();
 
+            var fullPath = path + name;
+
+            using StreamWriter streamWriter = new(fullPath);
+            streamWriter.WriteLine(visGraphJson);
+        }
 
 
 

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Api Test</title>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script>
+        const baseUrl = 'https://localhost:7265/';
+        const getGraph = 'saved-graph';
+    </script>
+</head>
+
+<body>
+    <input type="button" value="GET-GRAPH" id="get-graph" />
+    </br>
+    <textarea id="graph-string" rows="35" cols="100"></textarea>
+
+    <script>
+
+        var btnGENERATE = document.getElementById("get-graph");
+        btnGENERATE.onclick = function () {
+            axios({
+                method: 'get',
+                url: baseUrl + getGraph,
+            })
+                .then(function (response) {
+                    var graphString = document.getElementById("graph-string");
+                    graphString.value = JSON.stringify(response.data, undefined, 4);
+                });
+        };
+
+
+        // const Http = new XMLHttpRequest();
+        // const baseUrl = 'https://localhost:7265/';
+        // Http.open("GET", baseUrl + "saved-graph");
+        // Http.send();
+
+        // Http.onreadystatechange = (e) => {
+        //     console.log(Http.responseText)
+        // }
+    </script>
+</body>
+
+</html>

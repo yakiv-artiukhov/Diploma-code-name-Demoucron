@@ -1,4 +1,4 @@
-﻿namespace omg.GraphTopologicalSorting.Algorithms
+﻿namespace omg.TopologicalSorting.Algorithms
 {
     internal class Demoucron : ITopologicalSortingAlgorythm
     {

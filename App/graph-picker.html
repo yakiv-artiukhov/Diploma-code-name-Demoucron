@@ -116,6 +116,8 @@
     <script type="text/javascript">
         seededRandom = Alea("SEED");
 
+        var currentID = 0;
+
         var nodes, edges;
         var network = null;
 
@@ -129,6 +131,7 @@
                 nodesArray.push({
                     id: i,
                     label: String(i),
+                    group: i,
                 });
 
                 connectionCount[i] = 0;
@@ -188,11 +191,14 @@
             var container = document.getElementById("mynetwork");
             var options = {
                 manipulation: {
-                    addNode: function (data, callback) {
-                        // filling in the popup DOM elements
-                        document.getElementById("node-operation").innerText = "Add Node";
-                        editNode(data, clearNodePopUp, callback);
-                    },
+                    addNode: false,
+                    // addNode: function (data, callback) {
+                    //     data.id = currentID;
+                    //     currentID = currentID + 1;
+                    //     // filling in the popup DOM elements
+                    //     document.getElementById("node-operation").innerText = "Add Node";
+                    //     editNode(data, clearNodePopUp, callback);
+                    // },
                     editNode: function (data, callback) {
                         // filling in the popup DOM elements
                         document.getElementById("node-operation").innerText = "Edit Node";
@@ -291,7 +297,7 @@
 
         //init
         function init() {
-            draw(25);
+            draw(0);
         }
     </script>
 </head>
@@ -416,6 +422,9 @@
         const graphJSON = GetGraphJSON();
         graphTextBox.value = graphJSON;
     })
+
+    //Розробка автоматизованої системи синтезу організаційно-технічної системи управління підприємством на базі документообігу
+
 </script>
 
 </html>

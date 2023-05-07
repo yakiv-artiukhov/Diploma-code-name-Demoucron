@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace omg.GraphTopologicalSorting
+namespace omg.TopologicalSorting
 {
     internal class Graph
     {
@@ -46,7 +46,7 @@ namespace omg.GraphTopologicalSorting
                 Nodes.Add(new Node() { Id = i.ToString(), Label = i, Level = -1 });
                 for (int j = 0; j < nodesCount; j++)
                     if (adjacencyMatrix[i, j] == 1)
-                        Edges.Add(new Edge() { Id = string.Empty, Label = -1, From = i, To = j, Arrows = "to" });
+                        Edges.Add(new Edge() { Id = $"{i}+{j}", Label = -1, From = i, To = j, Arrows = "to" });
             }
 
             return new Graph(Nodes, Edges);

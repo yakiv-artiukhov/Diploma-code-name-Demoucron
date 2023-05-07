@@ -1,0 +1,10 @@
+hello. imagine you are a frontend developer expert. 
+I will describe the component and you will provide me with an example of implementation. you can use html, css, and js. different js libraries are allowed. using js frameworks is possible but try to avoid that. 
+
+Component description:
+1. Single landing page divided into six sections.
+2. Each section can be expanded and collapsed. The page should load with all sections collapsed except the first one.
+3. Each section consists of two parts:
+   1) the first part is a heading and should always be visible. It contains the section name and button to expand/collapse the section (depending on the current section`s state: whether it collapsed or expanded);
+   2) the second part is content and should be visible only when a section is expanded. It will contain the visual representation of my application's math computation, but for now, fill it with a content placeholder (e.g., picture and textbox).
+4. At the end of each section`s content should be the "summarizing" button. By clicking on this button the next section should be expanded (if it is not expanded yet).

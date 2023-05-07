@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>
+    Ordered Graph
+  </title>
+
+  <style type="text/css">
+    body {
+      font: 10pt sans;
+    }
+
+    #mynetwork {
+      width: 1200px;
+      height: 800px;
+      border: 1px solid lightgray;
+    }
+  </style>
+
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+  <script type="text/javascript">
+    var nodes = null;
+    var edges = null;
+    var network = null;
+    var directionInput = document.getElementById("direction");
+
+    function destroy() {
+      if (network !== null) {
+        network.destroy();
+        network = null;
+      }
+    }
+
+    function draw(data) {
+      destroy();
+      
+      // create a network
+      var container = document.getElementById("mynetwork");
+
+      var options = {
+        edges: {
+          smooth: {
+            type: "cubicBezier",
+            forceDirection: "vertical",
+            roundness: 0.4,
+          },
+        },
+        layout: {
+          hierarchical: {
+            direction: "LR",
+          },
+        },
+        physics: false,
+      };
+      network = new vis.Network(container, data, options);
+    }
+  </script>
+</head>
+
+<body>
+  <h2>Ordered Graph</h2>
+
+  <div style="width: 700px; font-size: 14px; text-align: justify">
+    <p>
+      Read ordered graph:
+      <input type="button" id="read-graph" value="Read" />
+    </p>
+  </div>
+
+
+  <div id="mynetwork"></div>
+  <textarea id="graph-json" rows="1" cols="1"></textarea>
+</body>
+
+
+<script type="module">
+  import dataJSON from '/app-data/picked-ordered-graph.json' assert { type: "json" };
+  var graphJSON = document.getElementById("graph-json");
+  graphJSON.value = JSON.stringify(dataJSON);
+</script>
+
+<script language="JavaScript">
+  var btnExport = document.getElementById("read-graph");
+  btnExport.onclick = function () {
+    var graphJSON = document.getElementById("graph-json");
+    const graphData = JSON.parse(graphJSON.value)
+    draw(graphData);
+  };
+</script>
+
+</html>

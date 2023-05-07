@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace omg.GraphTopologicalSorting.Models
+namespace omg.TopologicalSorting.Models
 {
     [Serializable]
     public class NodeModel

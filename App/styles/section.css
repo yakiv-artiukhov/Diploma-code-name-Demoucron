@@ -1,0 +1,27 @@
+/* Styling for the section container */
+.section {
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+/* Styling for the heading and button of each section */
+.section-heading {
+    background-color: #f2f2f2;
+    padding: 10px;
+    cursor: pointer;
+}
+
+/* Styling for the content of each section */
+.section-content {
+    display: none;
+    padding: 10px;
+}
+
+/* Styling for the summarizing button */
+#summarize-btn {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+}

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace omg.GraphTopologicalSorting
+namespace omg.TopologicalSorting
 {
     internal interface ITopologicalSortingAlgorythm
     {
