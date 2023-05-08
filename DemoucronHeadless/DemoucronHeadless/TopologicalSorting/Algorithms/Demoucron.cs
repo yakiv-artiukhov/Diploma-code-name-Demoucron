@@ -25,11 +25,15 @@ public class Demoucron : ITopologicalSortingAlgorythm
 
         while (sortedNodes < nodesCount)
         {
+            Console.WriteLine($"[Level: {level}");
             var currentZeroSumNodesIndexes = new List<int>();
             for (int i = 0; i < trackArray.Length; i++)
             {
                 if (trackArray[i] == 0)
+                {
+                    Console.WriteLine($"[{i + 1}");
                     currentZeroSumNodesIndexes.Add(i);
+                }
 
             }
             foreach (int i in currentZeroSumNodesIndexes)
