@@ -14,12 +14,14 @@
 </head>
 
 <body onload="init();">
+
+
     <div class="section">
         <div class="section-heading" onclick="toggleSection(0)">
             Describe document relationships
         </div>
         <div class="section-content" id="section-0-content">
-            <h2>Build document relationship graph</h2>
+            <h2>Build a document relationship graph</h2>
 
             <!--Random Generation-->
             <p style="width: 700px; font-size: 14px; text-align: justify">
@@ -40,8 +42,8 @@
                         <td><input id="node-id" value="new value" /></td>
                     </tr>
                     <tr>-->
-                    <td>label</td>
-                    <td><input id="node-label" value="new value" /></td>
+                    <td>Document ID</td>
+                    <td><input id="node-label" value="" /></td>
                     </tr>
                 </table>
                 <input type="button" value="save" id="node-saveButton" />
@@ -50,10 +52,10 @@
 
             <!--Edge Popup-->
             <div id="edge-popUp">
-                <span id="edge-operation">edge</span> <br />
+                <span id="edge-operation">Edge</span> <br />
                 <table style="margin: auto">
                     <tr>
-                        <td>label</td>
+                        <td>Label</td>
                         <td><input type="text" id="edge-label" value="" /></td>
                     </tr>
                 </table>
@@ -100,46 +102,43 @@
 
                 </div>
             </div>
-            <button onclick="SortPickedGraph()">Sort Graph</button>
+
+            <button onclick="Save()">Save</button>
         </div>
     </div>
+
+
     <div class="section">
         <div class="section-heading" onclick="toggleSection(1)">
-            Statistical indicators
-        </div>
-        <div class="section-content" id="section-1-content">
-            <div class="contents">
-                <div class="center">
-                    <!-- <button id="setFlowsNumbers" onclick="SetInformationFlowsPickedGraph()">Set Information
-                        Flows</button> -->
-                    <div id="sortedGraphNetwork"></div>
-                </div>
-            </div>
-            <button onclick="expandNextSection()">Summarize and expand next section</button>
-        </div>
-    </div>
-    <div class="section">
-        <div class="section-heading" onclick="toggleSection(2)">
             Local Infrastructure
         </div>
-        <div class="section-content" id="section-2-content">
-            <h2>Describe you local infrastructure</h2>
+        <div class="section-content" id="section-1-content">
+            <h2>Describe your local infrastructure and document distribution between stations</h2>
 
-            <!--Node Popup-->
+            <!--localSystem Node Popup-->
             <div id="localSystemNode-popUp">
                 <span id="localSystemNode-operation">node</span> <br />
                 <table style="margin: auto">
-                    <!--<tr>
-                        <td>id</td>
-                        <td><input id="node-id" value="new value" /></td>
-                    </tr>
-                    <tr>-->
-                    <td>label</td>
-                    <td><input id="localSystemNode-label" value="new value" /></td>
+                    <td>Work Station</td>
+                    <td><input id="localSystemNode-label" value="" /></td>
                     </tr>
                 </table>
                 <input type="button" value="save" id="localSystemNode-saveButton" />
                 <input type="button" value="cancel" id="localSystemNode-cancelButton" />
+            </div>
+
+            <!--documentDistribution Node Popup-->
+            <div id="documentDistributionNode-popUp">
+                <span id="documentDistributionNode-operation">node</span> <br />
+                <table style="margin: auto">
+                    <td>Work Station</td>
+                    <td><select id="workStationSelectPopup">
+                            <option value="" style="display:none">Choose workstation</option>
+                        </select></td>
+                    </tr>
+                </table>
+                <input type="button" value="save" id="documentDistributionNode-saveButton" />
+                <input type="button" value="cancel" id="documentDistributionNode-cancelButton" />
             </div>
 
             <div class="contents">
@@ -148,23 +147,116 @@
                     <h3>Local stantions</h3>
                     <div id="localSystemNetwork"></div>
                 </div>
-                <!--Document destribution-->
+                <!--Document Distribution-->
                 <div class="left">
-                    <h3>Define document destribution between local stantions</h3>
+                    <h3>Define document distribution between local stantions
+                    </h3>
+                    <button onclick="drawDocumentDistribution(true)">Load Documents</button>
+                    <div id="documentDistributionNetwork"></div>
                 </div>
             </div>
-            <button onclick="expandNextSection()">Topological Sorting</button>
+
+            <button onclick="Save()">Save</button>
         </div>
     </div>
+
+
+    <div class="section">
+        <div class="section-heading" onclick="toggleSection(2)">
+            Sorted document relationship graph
+        </div>
+        <div class="section-content" id="section-2-content">
+            <h2>Topologically sorted graph of relationships of documents with defined information flows</h2>
+
+            <button onclick="SortPickedGraph()">Sort Graph</button>
+            <button id="setFlowsNumbers" onclick="SetInformationFlowsPickedGraph()">Set Information Flows</button>
+            <div class="contents">
+                <div class="center">
+                    <div id="sortedGraphNetwork"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div class="section">
         <div class="section-heading" onclick="toggleSection(3)">
-            Section 3
+            Model of the movement of information flows
         </div>
         <div class="section-content" id="section-3-content">
-            <p>Placeholder content for section 3</p>
-            <button onclick="expandNextSection()">Summarize and expand next section</button>
+            <h2>Workstations with defined input and output information dependencies</h2>
+
+            <button onclick="Save()">Build Model</button>
+            <div class="contents">
+                <div class="center">
+                    <div class="center">
+                        <div id="informationFlowsNetwork"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+
+
+    <div class="section">
+        <div class="section-heading" onclick="toggleSection(4)">
+            Statistical Indicators
+        </div>
+        <div class="section-content" id="section-4-content">
+            <h2>Calculate statistical indicators for workstations</h2>
+
+
+            <table cellspacing="0" cellpadding="0">
+                <tr>
+                    <td>
+                        Select service system group:
+                    </td>
+                    <td>
+                        Select working station:
+                    </td>
+                    <td>
+                        Set document income dependency interval:
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <select>
+                            <option value="" style="display:none">MSS group</option>
+                            <option value="1">MSS-1</option>
+                            <option value="2">MSS-2</option>
+                            <option value="2">MSS-3</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select>
+                            <option value="" style="display:none">Select workstation</option>
+                            <option value="1">WS 5</option>
+                            <option value="2">WS 6</option>
+                            <option value="2">WS 11</option>
+                        </select>
+                    </td>
+                    <td>
+                        Start: <input></input>
+                        End: <input></input>
+                        Step: <input></input>
+                    </td>
+                    <td><button>Build!</button></td>
+                </tr>
+            </table>
+
+            <div class="contents">
+                <div class="center">
+
+                </div>
+            </div>
+            <button onclick="Save()">Save</button>
+        </div>
+    </div>
+
+
+
+
 
     <script>
         // Get all section elements
@@ -178,7 +270,7 @@
                 document.querySelector(`div[onclick="toggleSection(${i})"]`).style.backgroundColor = '#d2d2d2';
             }
             else {
-                content.style.display = 'none';
+                content.style.display = 'block';
             }
         }
 
@@ -239,6 +331,7 @@
 <!--GRAPH PICKER SCRIPTS-->
 <script type="text/javascript">
     seededRandom = Alea("SEED");
+    var seed = 2;
 
     var currentID = 0;
     var graphPickerNodes, graphPickerEdges;
@@ -319,6 +412,10 @@
         // create a network
         var graphPickerContainer = document.getElementById("graphPickerNetwork");
         var graphPickeOptions = {
+            layout: { randomSeed: seed },
+            physics: {
+                enabled: false,
+            },
             manipulation: {
                 addNode: function (data, callback) {
                     data.id = currentID;
@@ -418,7 +515,7 @@
     function saveEdgeData(data, callback) {
         if (typeof data.to === "object") data.to = data.to.id;
         if (typeof data.from === "object") data.from = data.from.id;
-        data.label = document.getElementById("edge-label").value;
+        //data.label = document.getElementById("edge-label").value;
         clearEdgePopUp();
         callback(data);
     }
@@ -529,7 +626,7 @@
             manipulation: {
                 addNode: function (data, callback) {
                     data.id = localID;
-                    localID = localID + 1;  
+                    localID = localID + 1;
                     data.group = localID;
                     // filling in the popup DOM elements
                     document.getElementById("localSystemNode-operation").innerText = "Add Working Station";
@@ -572,7 +669,7 @@
     }
 
     function localSystemCancelNodeEdit(callback) {
-        clearNodePopUp();
+        localSystemclearNodePopUp();
         callback(null);
     }
 
@@ -581,6 +678,103 @@
         localSystemClearNodePopUp();
         callback(data);
     }
+
+
+    var stations = [];
+    function updateStations() {
+        var ids = localSystemNodes.getIds();
+        var stationSelector = document.getElementById("workStationSelectPopup");
+
+        stations = [];
+        while (stationSelector.options.length > 0) {
+            stationSelector.remove(0);
+        }
+
+        for (let i = 0; i < ids.length; i++) {
+            stations[i] = localSystemNodes.get(i);
+            var option = document.createElement("option");
+            option.text = stations[i].label;
+            option.value = i;
+            stationSelector.add(option, stationSelector[i]);
+        }
+    }
+
+    var documentDistributionNodes;
+    function drawDocumentDistribution(initial) {
+
+        if (initial === true) {
+            var nodeArr = [];
+            var ids = graphPickerNodes.getIds();
+            for (let i = 0; i < ids.length; i++) {
+                var node = graphPickerNodes.get(i);
+                nodeArr.push({
+                    id: node.id,
+                    label: node.label,
+                    //group: 0,
+                });
+            }
+            documentDistributionNodes = new vis.DataSet(nodeArr);
+        }
+        var documentDistributionData = { nodes: documentDistributionNodes, edges: graphPickerEdges };
+
+        var documentDistributionNetworkContainer = document.getElementById("documentDistributionNetwork");
+        var options = {
+            nodes: {
+                color: '#cccccc',
+            },
+            physics: {
+                enabled: false,
+            },
+            manipulation: {
+                addNode: false,
+                editNode: function (data, callback) {
+                    updateStations();
+                    document.getElementById("documentDistributionNode-operation").innerText = "Edit Document Distribution";
+                    documentDistributionEditNode(data, documentDistributionCancelNodeEdit, callback);
+                },
+                addEdge: false,
+                editEdge: false,
+                deleteNode: false,
+                deleteEdge: false,
+            },
+        };
+
+        documentDistributionNetwork = new vis.Network(documentDistributionNetworkContainer, documentDistributionData, options);
+    }
+
+    // documentDistribution system node utilities
+    function documentDistributionEditNode(data, cancelAction, callback) {
+        document.getElementById("workStationSelectPopup").value = data.group;
+        document.getElementById("documentDistributionNode-saveButton").onclick = documentDistributionSaveNodeData.bind(
+            this,
+            data,
+            callback
+        );
+        document.getElementById("documentDistributionNode-cancelButton").onclick =
+            cancelAction.bind(this, callback);
+        document.getElementById("documentDistributionNode-popUp").style.display = "block";
+    }
+
+    function documentDistributionClearNodePopUp() {
+        document.getElementById("documentDistributionNode-saveButton").onclick = null;
+        document.getElementById("documentDistributionNode-cancelButton").onclick = null;
+        document.getElementById("documentDistributionNode-popUp").style.display = "none";
+    }
+
+    function documentDistributionCancelNodeEdit(callback) {
+        documentDistributionClearNodePopUp();
+        callback(null);
+    }
+
+    function documentDistributionSaveNodeData(data, callback) {
+        var group = Number(document.getElementById("workStationSelectPopup").value);
+        data.group = group;
+        data.color = stations[group].color;
+        documentDistributionClearNodePopUp();
+        callback(data);
+    }
+
+
 </script>
 
 
